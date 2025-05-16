@@ -10,6 +10,11 @@
     <a href="{% url 'add_employee' pk=user.pk %}" class="btn btn-secondary">New Employee</a>
 </div>
 <div class="col-12">
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} p-3">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
     <table class="table table-striped mb-5">
         <thead>
             <th scope="col"> Name </th>
@@ -17,6 +22,7 @@
             <th scope="col"> Rate </th>
             <th scope="col"> Allowance </th>
             <th scope="col"> Overtime </th>
+            <th scope="col"> Options </th>
         </thead>
         <tbody>
             {% for d in employees %}
@@ -26,6 +32,17 @@
                 <td> {{ d.rate }} </td>
                 <td> {{ d.allowance }} </td>
                 <td> {{ d.overtime_pay }} </td>
+                <td>
+                    <a href="{% url 'update_employee' pk=user.pk employee_pk=d.pk %}" class="btn btn-primary btn-sm me-2 mb-2">Update</a>
+                    <a href="{% url 'delete_employee' pk=user.pk employee_pk=d.pk%}" class="btn btn-danger btn-sm me-2 mb-2">Delete<a>
+                    <form method="POST" action="{% url 'update_overtime' pk=user.pk employee_pk=d.pk %}" class="d-inline">
+                        {% csrf_token %}
+                        <div class="d-flex align-items-center">
+                            <input type="number" name="overtime_hours" class="form-control form-control-sm w-25 me-2" placeholder="Overtime Hours">
+                            <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                        </div>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </tbody>

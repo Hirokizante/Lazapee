@@ -6,28 +6,28 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Add Employee:</h5>
+                <h5 class="card-title">Update Employee:</h5>
             </div>
             <div class="card-body">
-                <form method="POST" action="{% url 'add_employee' pk=user.pk %}">{% csrf_token %}
+                <form method="POST" action="{% url 'update_employee' pk=user.pk employee_pk=employee.pk %}">{% csrf_token %}
                     <div class="form-group">
                         <label for="name"> Name: </label>
-                        <input type="text" class="form-control w-60" id="ename" name="ename">
+                        <input type="text" class="form-control w-60" id="ename" name="ename" value="{{ employee.name }}">
                     </div>
                     <div class="form-group">
                         <label for="idno"> ID Number: </label>
-                        <input type="number" class="form-control w-60" id="idno" name="idno">
+                        <input type="number" class="form-control w-60" id="idno" name="idno" value="{{ employee.id_number }}">
                     </div>
                     <div class="form-group">
                         <label for="erate"> Rate: </label>
-                        <input type="number" class="form-control w-60" id="erate" name="erate">
+                        <input type="number" class="form-control w-60" id="erate" name="erate" value="{{ employee.rate }}">
                     </div>
                     <div class="form-group">
                         <label for="allowance"> Allowance (Optional): </label>
-                        <input type="number" class="form-control w-60" id="allowance" name="allowance">
+                        <input type="number" class="form-control w-60" id="allowance" name="allowance" value="{{ employee.allowance }}">
                     </div>
                     <div class="mt-2 d-flex justify-content-between">
-                        <button type="submit" class="btn btn-primary btn-sm me-2">Add Employee</button>
+                        <button type="submit" class="btn btn-primary btn-sm me-2">Update Employee</button>
                         <a href="{% url 'home' pk=user.pk%}" class="btn btn-danger btn-sm">Cancel</a>
                     </div>
                 </form>                
