@@ -11,9 +11,31 @@
 </div>
 <div class="col-12">
     {% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} p-3">{{ message }}</div>
-    {% endfor %}
+    <ul class="messages list-unstyled">
+        {% for message in messages %}
+        <li class="alert alert-{{ message.tags }} d-flex align-items-center mb-2" role="alert">
+            {% if message.tags == 'success' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+                    <use xlink:href="#check-circle-fill"></use>
+                </svg>
+            {% elif message.tags == 'info' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+                    <use xlink:href="#info-fill"></use>
+                </svg>
+            {% elif message.tags == 'warning' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+            {% elif message.tags == 'error' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Error:">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+            {% endif %}
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </li>
+        {% endfor %}
+    </ul>
     {% endif %}
     <table class="table table-striped mb-5">
         <thead>
