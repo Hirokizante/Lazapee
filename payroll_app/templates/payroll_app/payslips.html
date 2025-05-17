@@ -1,0 +1,117 @@
+{% extends 'payroll_app/base.html' %}
+{% load static %}
+
+{% block content %}
+{% if messages %}
+    <ul class="messages list-unstyled">
+        {% for message in messages %}
+        <li class="alert alert-{{ message.tags }} d-flex align-items-center mb-2" role="alert">
+            {% if message.tags == 'success' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+                    <use xlink:href="#check-circle-fill"></use>
+                </svg>
+            {% elif message.tags == 'info' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+                    <use xlink:href="#info-fill"></use>
+                </svg>
+            {% elif message.tags == 'warning' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+            {% elif message.tags == 'error' %}
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Error:">
+                    <use xlink:href="#exclamation-triangle-fill"></use>
+                </svg>
+            {% endif %}
+            <div>{{ message }}</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<div class="d-flex justify-content-center align-items-center">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Payroll Creation</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'payslips' pk=user.pk %}">{% csrf_token %}
+                    <div class="form-group">
+                        <label for="employeeSelect">Payroll For:</label>
+                        <select class="form-select" id="employeeSelect" name="employee">
+                            <option selected disabled>Choose...</option>
+                            {% for employee in employees %}
+                                <option value="{{ employee.pk }}">{{ employee.name }} (ID: {{ employee.id_number }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monthSelect">Month:</label>
+                        <select class="form-select" id="monthSelect" name="month">
+                            <option selected disabled>Choose...</option>
+                            <option value="January">January</option>
+                            <option value="February">February</option>
+                            <option value="March">March</option>
+                            <option value="April">April</option>
+                            <option value="May">May</option>
+                            <option value="June">June</option>
+                            <option value="July">July</option>
+                            <option value="August">August</option>
+                            <option value="September">September</option>
+                            <option value="October">October</option>
+                            <option value="November">November</option>
+                            <option value="December">December</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dateSelect">Date Range:</label>
+                        <input type="text" class="form-control w-60" id="dateSelect" name="daterange">
+                    </div>
+                    <div class="form-group">
+                        <label for="year">Year:</label>
+                        <input type="text" class="form-control w-60" id="year" name="year">
+                    </div>
+                    <div class="form-group">
+                        <label for="cycleSelect">Cycle:</label>
+                        <select class="form-select" id="cycleSelect" name="cycle">
+                            <option selected disabled>Choose...</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                        </select>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary btn-sm me-2 mt-2">Generate Payslip</button>
+                        <a href="{% url 'home' pk=user.pk%}" class="btn btn-danger btn-sm mt-2">Cancel</a>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 mt-3">
+    <table class="table table-striped mb-5">
+        <thead>
+            <th scope="col"> ID Number </th>
+            <th scope="col"> Date </th>
+            <th scope="col"> Cycle </th>
+            <th scope="col"> Total Pay </th>
+            <th scope="col"> Options </th>
+        </thead>
+        <tbody>
+            {% for d in payslips %}
+            <tr>
+                <td> {{ d.employee.id_number }} </td>
+                <td> {{ d.month }} {{ d.date_range }}, {{ d.year }} </td>
+                <td> {{ d.pay_cycle }} </td>
+                <td> {{ d.total_pay }} </td>
+                <td>
+                    <a href="#" class="btn btn-primary btn-sm me-2 mb-2">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>          
+</div>
+{% endblock %}
+

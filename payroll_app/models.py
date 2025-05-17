@@ -22,7 +22,7 @@ class Employee(models.Model):
     def __str__(self):
         return f"{self.pk}: {self.id_number}, rate: {self.salary_rate}"
 class Payslip(models.Model):
-    id_number = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     month = models.CharField(max_length=20)
     date_range = models.CharField(max_length=50)
     year = models.CharField(max_length=4)
@@ -36,7 +36,7 @@ class Payslip(models.Model):
     overtime = models.FloatField()
     total_pay = models.FloatField()
     def getIDNumber(self):
-        return self.id_number.id_number
+        return self.employee.id_number
     def getMonth(self):
         return self.month
     def getDateRange(self):

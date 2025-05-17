@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Accounts, Employee
+from .models import Accounts, Employee, Payslip
 
 # Create your views here.
 
@@ -99,3 +99,53 @@ def deleteEmployee(request, pk, employee_pk):
     employee.delete()
     messages.success(request, 'Employee deleted successfully!')
     return redirect('home', pk=pk)
+
+def payslips(request, pk):
+    if request.method == "POST":
+        employee_pk = request.POST.get('employee')  
+        month = request.POST.get('month')
+        date_range = request.POST.get('daterange')
+        year = request.POST.get('year')
+        pay_cycle = request.POST.get('cycle')
+        employee = get_object_or_404(Employee, pk=employee_pk)
+
+        # Check if the payslip already exists for the employee and pay cycle
+        if Payslip.objects.filter(employee=employee, pay_cycle=pay_cycle, month=month, date_range=date_range, year=year).exists():
+            messages.warning(request, 'Payslip already exists for this employee and pay cycle!')
+            return redirect('payslips', pk=pk)
+        else:
+            pag_ibig = 100
+            philhealth = employee.rate * 0.04
+            sss = employee.rate * 0.045
+            allowance = employee.allowance or 0
+            overtime = employee.overtime_pay or 0
+            deductions_tax = ((employee.rate / 2) + allowance + overtime - pag_ibig) * 0.2
+            deductions_health = ((employee.rate / 2) + allowance + overtime - philhealth - sss) * 0.2
+            total_pay = 0
+            if pay_cycle == "1":
+                total_pay = ((employee.rate / 2) + allowance + overtime - pag_ibig) - deductions_tax
+            elif pay_cycle == "2":
+                total_pay = ((employee.rate / 2) + allowance + overtime - philhealth - sss) - deductions_health
+            payslip = Payslip.objects.create(
+                employee=employee,
+                month=month,
+                date_range=date_range,
+                year=year,
+                pay_cycle=pay_cycle,
+                rate=employee.rate,
+                earnings_allowance=allowance,
+                deductions_tax=deductions_tax,
+                deductions_health=deductions_health,
+                pag_ibig=pag_ibig,
+                sss=sss,
+                overtime=overtime,
+                total_pay=total_pay
+            )
+            payslip.save()
+            messages.success(request, 'Payslip created successfully!')
+            return redirect('payslips', pk=pk)
+    else:
+        user = get_object_or_404(Accounts, pk=pk)
+        employees = Employee.objects.all()
+        payslips = Payslip.objects.all()
+        return render(request, 'payroll_app/payslips.html', {'user': user, 'employees': employees, 'payslips': payslips})
