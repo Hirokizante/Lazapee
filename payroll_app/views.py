@@ -43,6 +43,9 @@ def addEmployee(request, pk):
         id_number = request.POST.get('idno')
         rate = request.POST.get('erate')
         allowance = request.POST.get('allowance')
+        if Employee.objects.filter(id_number=id_number).exists():
+            messages.warning(request, 'Employee ID already exists!')
+            return redirect('home', pk = pk)
         if allowance != "":
             employee = Employee.objects.create(name=name, id_number=id_number, rate=rate, allowance=allowance)
             employee.save()
@@ -108,8 +111,6 @@ def payslips(request, pk):
         year = request.POST.get('year')
         pay_cycle = request.POST.get('cycle')
         employee = get_object_or_404(Employee, pk=employee_pk)
-
-        # Check if the payslip already exists for the employee and pay cycle
         if Payslip.objects.filter(employee=employee, pay_cycle=pay_cycle, month=month, date_range=date_range, year=year).exists():
             messages.warning(request, 'Payslip already exists for this employee and pay cycle!')
             return redirect('payslips', pk=pk)
@@ -149,3 +150,62 @@ def payslips(request, pk):
         employees = Employee.objects.all()
         payslips = Payslip.objects.all()
         return render(request, 'payroll_app/payslips.html', {'user': user, 'employees': employees, 'payslips': payslips})
+
+def manage_account(request, pk):
+    user = get_object_or_404(Accounts, pk=pk)
+    return render(request, 'payroll_app/manage_account.html', {'user': user})
+
+def change_password(request, pk):
+    if request.method == "POST":
+        old_password = request.POST.get('old_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        user = get_object_or_404(Accounts, pk=pk)
+        
+        if old_password != user.password:
+            messages.warning(request, 'Current password is incorrect!')
+            return render(request, 'payroll_app/change_password.html', {'user': user})
+        
+        if new_password != confirm_password:
+            messages.warning(request, 'New password and confirm password do not match!')
+            return render(request, 'payroll_app/change_password.html', {'user': user})
+        
+        user.password = new_password
+        user.save()
+        messages.success(request, 'Password changed successfully!')
+        return redirect('home', pk=pk)
+    else:
+        user = get_object_or_404(Accounts, pk=pk)
+        return render(request, 'payroll_app/change_password.html', {'user': user})
+
+def delete_account(request, pk):
+    if request.method == "POST":
+        user = get_object_or_404(Accounts, pk=pk)
+        user.delete()
+        messages.success(request, 'Account deleted successfully!')
+        return redirect('login')
+    return redirect('home', pk=pk)
+
+def logout_view(request):
+    return redirect('login')
+
+def view_payslip(request, pk, payslip_pk):
+    user = get_object_or_404(Accounts, pk=pk)
+    payslip = get_object_or_404(Payslip, pk=payslip_pk)
+    
+    gross_pay = (payslip.rate / 2) + payslip.earnings_allowance + payslip.overtime
+    
+    if payslip.pay_cycle == 1:
+        total_deductions = payslip.deductions_tax + payslip.pag_ibig
+    else:
+        total_deductions = payslip.deductions_health + payslip.sss + payslip.deductions_tax
+    
+    context = {
+        'user': user,
+        'payslip': payslip,
+        'gross_pay': gross_pay,
+        'total_deductions': total_deductions
+    }
+    
+    return render(request, 'payroll_app/view_payslip.html', context)

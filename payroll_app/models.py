@@ -64,7 +64,7 @@ class Payslip(models.Model):
     def getTotalPay(self):
         return self.total_pay
     def __str__(self):
-        return f"PK: {self.pk}, Employee: {self.id_number.id_number}, Period: {self.month} {self.date_range}, {self.year}, Cycle: {self.pay_cycle}, Total Pay: {self.total_pay}"
+        return f"PK: {self.pk}, Employee: {self.employee.id_number}, Period: {self.month} {self.date_range}, {self.year}, Cycle: {self.pay_cycle}, Total Pay: {self.total_pay}"
 class Accounts(models.Model):
     username = models.CharField(max_length=300)
     password = models.CharField(max_length=300)

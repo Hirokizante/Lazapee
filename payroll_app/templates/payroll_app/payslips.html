@@ -31,7 +31,7 @@
 {% endif %}
 <div class="d-flex justify-content-center align-items-center">
     <div class="col-md-4">
-        <div class="card">
+        <div class="card mt-4">
             <div class="card-header">
                 <h5 class="card-title">Payroll Creation</h5>
             </div>
@@ -106,7 +106,7 @@
                 <td> {{ d.pay_cycle }} </td>
                 <td> {{ d.total_pay }} </td>
                 <td>
-                    <a href="#" class="btn btn-primary btn-sm me-2 mb-2">View</a>
+                    <a href="{% url 'view_payslip' pk=user.pk payslip_pk=d.pk %}" class="btn btn-primary btn-sm me-2 mb-2">View</a>
                 </td>
             </tr>
             {% endfor %}
