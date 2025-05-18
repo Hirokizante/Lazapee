@@ -110,41 +110,73 @@ def payslips(request, pk):
         date_range = request.POST.get('daterange')
         year = request.POST.get('year')
         pay_cycle = request.POST.get('cycle')
-        employee = get_object_or_404(Employee, pk=employee_pk)
-        if Payslip.objects.filter(employee=employee, pay_cycle=pay_cycle, month=month, date_range=date_range, year=year).exists():
-            messages.warning(request, 'Payslip already exists for this employee and pay cycle!')
-            return redirect('payslips', pk=pk)
+        if employee_pk == "all":
+            employees = Employee.objects.all()
+            for employee in employees:
+                if not Payslip.objects.filter(employee=employee, pay_cycle=pay_cycle, month=month, date_range=date_range, year=year).exists():
+                    pag_ibig = 100
+                    philhealth = employee.rate * 0.04
+                    sss = employee.rate * 0.045
+                    allowance = employee.allowance or 0
+                    overtime = employee.overtime_pay or 0
+                    deductions_tax = ((employee.rate / 2) + allowance + overtime - pag_ibig) * 0.2
+                    deductions_health = ((employee.rate / 2) + allowance + overtime - philhealth - sss) * 0.2
+                    total_pay = 0
+                    if pay_cycle == "1":
+                        total_pay = ((employee.rate / 2) + allowance + overtime - pag_ibig) - deductions_tax
+                    elif pay_cycle == "2":
+                        total_pay = ((employee.rate / 2) + allowance + overtime - philhealth - sss) - deductions_health
+                    Payslip.objects.create(
+                        employee=employee,
+                        month=month,
+                        date_range=date_range,
+                        year=year,
+                        pay_cycle=pay_cycle,
+                        rate=employee.rate,
+                        earnings_allowance=allowance,
+                        deductions_tax=deductions_tax,
+                        deductions_health=deductions_health,
+                        pag_ibig=pag_ibig,
+                        sss=sss,
+                        overtime=overtime,
+                        total_pay=total_pay
+                    )
+            messages.success(request, 'Payslips created for all employees!')
         else:
-            pag_ibig = 100
-            philhealth = employee.rate * 0.04
-            sss = employee.rate * 0.045
-            allowance = employee.allowance or 0
-            overtime = employee.overtime_pay or 0
-            deductions_tax = ((employee.rate / 2) + allowance + overtime - pag_ibig) * 0.2
-            deductions_health = ((employee.rate / 2) + allowance + overtime - philhealth - sss) * 0.2
-            total_pay = 0
-            if pay_cycle == "1":
-                total_pay = ((employee.rate / 2) + allowance + overtime - pag_ibig) - deductions_tax
-            elif pay_cycle == "2":
-                total_pay = ((employee.rate / 2) + allowance + overtime - philhealth - sss) - deductions_health
-            payslip = Payslip.objects.create(
-                employee=employee,
-                month=month,
-                date_range=date_range,
-                year=year,
-                pay_cycle=pay_cycle,
-                rate=employee.rate,
-                earnings_allowance=allowance,
-                deductions_tax=deductions_tax,
-                deductions_health=deductions_health,
-                pag_ibig=pag_ibig,
-                sss=sss,
-                overtime=overtime,
-                total_pay=total_pay
-            )
-            payslip.save()
-            messages.success(request, 'Payslip created successfully!')
-            return redirect('payslips', pk=pk)
+            employee = get_object_or_404(Employee, pk=employee_pk)
+            if Payslip.objects.filter(employee=employee, pay_cycle=pay_cycle, month=month, date_range=date_range, year=year).exists():
+                messages.warning(request, 'Payslip already exists for this employee and pay cycle!')
+                return redirect('payslips', pk=pk)
+            else:
+                pag_ibig = 100
+                philhealth = employee.rate * 0.04
+                sss = employee.rate * 0.045
+                allowance = employee.allowance or 0
+                overtime = employee.overtime_pay or 0
+                deductions_tax = ((employee.rate / 2) + allowance + overtime - pag_ibig) * 0.2
+                deductions_health = ((employee.rate / 2) + allowance + overtime - philhealth - sss) * 0.2
+                total_pay = 0
+                if pay_cycle == "1":
+                    total_pay = ((employee.rate / 2) + allowance + overtime - pag_ibig) - deductions_tax
+                elif pay_cycle == "2":
+                    total_pay = ((employee.rate / 2) + allowance + overtime - philhealth - sss) - deductions_health
+                Payslip.objects.create(
+                    employee=employee,
+                    month=month,
+                    date_range=date_range,
+                    year=year,
+                    pay_cycle=pay_cycle,
+                    rate=employee.rate,
+                    earnings_allowance=allowance,
+                    deductions_tax=deductions_tax,
+                    deductions_health=deductions_health,
+                    pag_ibig=pag_ibig,
+                    sss=sss,
+                    overtime=overtime,
+                    total_pay=total_pay
+                )
+                messages.success(request, f'Payslip created for {employee.name}!')
+        return redirect('payslips', pk=pk)
     else:
         user = get_object_or_404(Accounts, pk=pk)
         employees = Employee.objects.all()
