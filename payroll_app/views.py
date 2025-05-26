@@ -141,6 +141,8 @@ def payslips(request, pk):
                         overtime=overtime,
                         total_pay=total_pay
                     )
+                    employee.overtime_pay = None
+                    employee.save()
             messages.success(request, 'Payslips created for all employees!')
         else:
             employee = get_object_or_404(Employee, pk=employee_pk)
@@ -175,6 +177,8 @@ def payslips(request, pk):
                     overtime=overtime,
                     total_pay=total_pay
                 )
+                employee.overtime_pay = None
+                employee.save()
                 messages.success(request, f'Payslip created for {employee.name}!')
         return redirect('payslips', pk=pk)
     else:

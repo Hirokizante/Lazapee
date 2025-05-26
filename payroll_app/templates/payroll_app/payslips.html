@@ -41,7 +41,7 @@
                         <label for="employeeSelect">Payroll For:</label>
                         <select class="form-select" id="employeeSelect" name="employee">
                             <option selected disabled>Choose...</option>
-                            <option value="all">All Employees</option> <!-- New option for all employees -->
+                            <option value="all">All Employees</option> 
                             {% for employee in employees %}
                                 <option value="{{ employee.pk }}">{{ employee.name }} (ID: {{ employee.id_number }})</option>
                             {% endfor %}
